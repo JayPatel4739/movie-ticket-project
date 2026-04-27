@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancel Ticket - CineBook</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .cancel-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .cancel-search-box {
+            background: #1C1C1E;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #333;
+            margin-bottom: 2rem;
+        }
+
+        .cancel-search-box h2 {
+            color: #F5A623;
+            margin-bottom: 1rem;
+        }
+
+        .cancel-search-form {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .cancel-search-form input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.875rem 1rem;
+            background: #0D0D0D;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #F2F2F7;
+            font-size: 1rem;
+        }
+
+        .cancel-search-form input:focus {
+            outline: none;
+            border-color: #F5A623;
+        }
+
+        .cancel-search-form input::placeholder {
+            color: #666;
+        }
+
+        .bookings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .booking-card {
+            background: #1C1C1E;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #333;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .booking-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(192, 57, 43, 0.15);
+            border-color: #C0392B;
+        }
+
+        .booking-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .booking-card-header h3 {
+            color: #F5A623;
+            font-size: 1.2rem;
+        }
+
+        .booking-id {
+            background: #252527;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .booking-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .booking-detail {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .booking-detail-label {
+            color: #666;
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .booking-detail-value {
+            color: #F2F2F7;
+            font-size: 1rem;
+        }
+
+        .booking-detail-value.tickets {
+            color: #27AE60;
+            font-weight: 600;
+        }
+
+        .no-bookings {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .no-bookings h3 {
+            color: #F5A623;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1>CineBook</h1>
+            <span class="tagline">Premium Movie Experience</span>
+            <a href="/" class="nav-link">Home</a>
+        </div>
+    </nav>
+
+    <div class="cancel-container">
+        <div class="cancel-search-box">
+            <h2>Cancel Your Ticket</h2>
+            <form class="cancel-search-form" id="cancelSearchForm">
+                <input type="tel" id="searchPhone" placeholder="Enter your mobile number" required>
+                <button type="submit" class="btn-primary">Search Bookings</button>
+            </form>
+        </div>
+
+        <div class="bookings-list" id="bookingsList"></div>
+    </div>
+
+    <script>
+        document.getElementById('cancelSearchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const phone = document.getElementById('searchPhone').value.trim();
+            searchBookings(phone);
+        });
+
+        function searchBookings(phone) {
+            fetch(`/api/bookings/search?phone=${encodeURIComponent(phone)}`)
+                .then(res => res.json())
+                .then(bookings => displayBookings(bookings))
+                .catch(err => {
+                    document.getElementById('bookingsList').innerHTML = `
+                        <div class="no-bookings">
+                            <h3>Error</h3>
+                            <p>Failed to load bookings. Please try again.</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function displayBookings(bookings) {
+            const container = document.getElementById('bookingsList');
+            
+            if (bookings.length === 0) {
+                container.innerHTML = `
+                    <div class="no-bookings">
+                        <h3>No Bookings Found</h3>
+                        <p>No bookings found for this mobile number.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = bookings.map(booking => {
+                const seatsCount = booking.seats ? booking.seats.length : 0;
+                const seatsList = booking.seats ? booking.seats.join(', ') : 'N/A';
+                
+                return `
+                    <div class="booking-card">
+                        <div class="booking-card-header">
+                            <h3>${booking.movie_name}</h3>
+                            <span class="booking-id">${booking.booking_id}</span>
+                        </div>
+                        <div class="booking-details">
+                            <div class="booking-detail">
+                                <span class="booking-detail-label">Show Date</span>
+                                <span class="booking-detail-value">${booking.booking_date || 'N/A'}</span>
+                            </div>
+                            <div class="booking-detail">
+                                <span class="booking-detail-label">Show Time</span>
+                                <span class="booking-detail-value">${booking.timing || 'N/A'}</span>
+                            </div>
+                            <div class="booking-detail">
+                                <span class="booking-detail-label">Tickets Booked</span>
+                                <span class="booking-detail-value tickets">${seatsCount} seat${seatsCount !== 1 ? 's' : ''}</span>
+                            </div>
+                            <div class="booking-detail">
+                                <span class="booking-detail-label">Seats</span>
+                                <span class="booking-detail-value">${seatsList}</span>
+                            </div>
+                            <div class="booking-detail">
+                                <span class="booking-detail-label">Total Price</span>
+                                <span class="booking-detail-value">Rs. ${booking.total_price || 0}</span>
+                            </div>
+                        </div>
+                        <button class="btn-danger" onclick="cancelBooking('${booking.booking_id}')">Cancel Booking</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function cancelBooking(bookingId) {
+            if (!confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) {
+                return;
+            }
+
+            fetch('/api/cancel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ booking_id: bookingId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert('Booking cancelled successfully!');
+                const phone = document.getElementById('searchPhone').value.trim();
+                searchBookings(phone);
+            })
+            .catch(err => {
+                alert(err.error || 'Failed to cancel booking');
+            });
+        }
+    </script>
+</body>
+</html>

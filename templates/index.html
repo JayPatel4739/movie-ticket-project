@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineBook - Movie Ticket Booking</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .landing-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: #0D0D0D;
+        }
+        .landing-container h1 {
+            color: #F5A623;
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        .landing-container .tagline {
+            color: #888;
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+        }
+        .landing-buttons {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .landing-btn {
+            padding: 1.5rem 2.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .landing-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .book-btn {
+            background: #F5A623;
+            color: #000;
+        }
+        .cancel-btn {
+            background: #1C1C1E;
+            color: #C0392B;
+            border: 2px solid #C0392B;
+        }
+        .cancel-btn:hover {
+            background: #C0392B;
+            color: white;
+        }
+        .admin-btn {
+            background: #1C1C1E;
+            color: #F2F2F7;
+            border: 2px solid #F5A623;
+        }
+        .admin-btn:hover {
+            background: #F5A623;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="landing-container">
+        <h1>CineBook</h1>
+        <p class="tagline">Premium Movie Experience</p>
+        <div class="landing-buttons">
+            <a href="/book" class="landing-btn book-btn">Book Ticket</a>
+            <a href="/cancel" class="landing-btn cancel-btn">Cancel Ticket</a>
+            <a href="/login" class="landing-btn admin-btn">Add Movie</a>
+        </div>
+    </div>
+</body>
+</html>

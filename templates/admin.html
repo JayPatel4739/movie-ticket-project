@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CineBook</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #F5A623;
+        }
+        .admin-header h1 {
+            color: #F5A623;
+        }
+        .admin-header .logout-btn {
+            padding: 0.5rem 1.5rem;
+            background: #ff4444;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+        }
+        .admin-section {
+            background: #1C1C1E;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid #333;
+        }
+        .admin-section h2 {
+            color: #F5A623;
+            margin-bottom: 1rem;
+        }
+        .movie-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .movie-form input {
+            padding: 0.75rem;
+            background: #0D0D0D;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #F2F2F7;
+        }
+        .movie-form input:focus {
+            outline: none;
+            border-color: #F5A623;
+        }
+        .movie-form button {
+            padding: 0.75rem;
+            background: #F5A623;
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .movies-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .movie-card-admin {
+            background: #252527;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #333;
+        }
+        .movie-card-admin h3 {
+            color: #F5A623;
+            margin-bottom: 0.5rem;
+        }
+        .movie-card-admin p {
+            color: #888;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+        .movie-card-admin .actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        .movie-card-admin .actions button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .edit-btn {
+            background: #F5A623;
+            color: #000;
+        }
+        .delete-btn {
+            background: #ff4444;
+            color: white;
+        }
+        .back-home {
+            display: inline-block;
+            color: #F5A623;
+            text-decoration: none;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <a href="/" class="back-home">← Back to Home</a>
+        
+        <div class="admin-header">
+            <h1>Admin Dashboard</h1>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="admin-section">
+            <h2>Add New Movie</h2>
+            <form class="movie-form" id="addMovieForm">
+                <input type="text" id="movieName" placeholder="Movie Name" required>
+                <input type="text" id="movieGenre" placeholder="Genre">
+                <input type="text" id="movieTimings" placeholder="Timings (e.g., 2:00 PM, 5:00 PM)">
+                <input type="number" id="movieRows" placeholder="Rows" value="10">
+                <input type="number" id="movieSeatsPerRow" placeholder="Seats per Row" value="10">
+                <input type="number" id="moviePrice" placeholder="Price per Seat">
+                <button type="submit">Add Movie</button>
+            </form>
+        </div>
+
+        <div class="admin-section">
+            <h2>Manage Movies</h2>
+            <div class="movies-list" id="moviesList"></div>
+        </div>
+    </div>
+
+    <script>
+        let editMovieId = null;
+
+        function loadMovies() {
+            fetch('/api/movies')
+            .then(res => res.json())
+            .then(movies => {
+                const list = document.getElementById('moviesList');
+                list.innerHTML = movies.map(m => `
+                    <div class="movie-card-admin">
+                        <h3>${m.name}</h3>
+                        <p>Genre: ${m.genre || 'N/A'}</p>
+                        <p>Timings: ${(m.timings || []).join(', ')}</p>
+                        <p>Seats: ${m.total_seats} (${m.rows} rows × ${m.seats_per_row})</p>
+                        <p>Price: Rs. ${m.price_per_seat}/seat</p>
+                        <div class="actions">
+                            <button class="edit-btn" onclick="editMovie('${m.id}', '${m.name}', '${m.genre || ''}', ${JSON.stringify(m.timings).replace(/"/g, '&quot;')}, ${m.rows}, ${m.seats_per_row}, ${m.price_per_seat || 0})">Edit</button>
+                            <button class="delete-btn" onclick="deleteMovie('${m.id}')">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            });
+        }
+
+        document.getElementById('addMovieForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('movieName').value.trim();
+            const genre = document.getElementById('movieGenre').value.trim();
+            const timingsInput = document.getElementById('movieTimings').value.trim();
+            const rows = parseInt(document.getElementById('movieRows').value) || 10;
+            const seatsPerRow = parseInt(document.getElementById('movieSeatsPerRow').value) || 10;
+            const price = document.getElementById('moviePrice').value ? parseInt(document.getElementById('moviePrice').value) : null;
+
+            const timings = timingsInput ? timingsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+            const totalSeats = rows * seatsPerRow;
+
+            const body = { name, genre, timings, rows, seats_per_row: seatsPerRow, total_seats: totalSeats };
+            if (price) body.price_per_seat = price;
+
+            const url = editMovieId ? `/api/movies/${editMovieId}` : '/api/movies';
+            const method = editMovieId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(body)
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(editMovieId ? 'Movie updated!' : 'Movie added!');
+                document.getElementById('addMovieForm').reset();
+                editMovieId = null;
+                loadMovies();
+            })
+            .catch(err => alert('Error saving movie'));
+        });
+
+        function editMovie(id, name, genre, timings, rows, seatsPerRow, price) {
+            editMovieId = id;
+            document.getElementById('movieName').value = name;
+            document.getElementById('movieGenre').value = genre;
+            document.getElementById('movieTimings').value = timings.join(', ');
+            document.getElementById('movieRows').value = rows;
+            document.getElementById('movieSeatsPerRow').value = seatsPerRow;
+            document.getElementById('moviePrice').value = price || '';
+        }
+
+        function deleteMovie(id) {
+            if (!confirm('Delete this movie? All bookings will also be deleted.')) return;
+            fetch(`/api/movies/${id}`, {method: 'DELETE'})
+            .then(res => res.json())
+            .then(() => {
+                alert('Movie deleted');
+                loadMovies();
+            })
+            .catch(err => alert('Error deleting movie'));
+        }
+
+        function logout() {
+            fetch('/api/logout', {method: 'POST'})
+            .then(() => window.location.href = '/');
+        }
+
+        loadMovies();
+    </script>
+</body>
+</html>

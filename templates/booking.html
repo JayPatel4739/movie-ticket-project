@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Tickets - CineBook</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1>CineBook</h1>
+            <span class="tagline">Premium Movie Experience</span>
+            <a href="/" class="nav-link">Home</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="movies-section">
+            <div class="section-header">
+                <h2>Now Showing</h2>
+                <div class="search-box">
+                    <input type="date" id="searchDate" onchange="loadMovies(document.getElementById('searchInput').value)">
+                    <input type="text" id="searchInput" placeholder="Search movies..." onkeyup="loadMovies(this.value)">
+                </div>
+            </div>
+
+            <div class="add-movie-form" style="display: none;">
+                <h3>Add New Movie</h3>
+                <form id="movieForm">
+                    <input type="text" id="movieName" placeholder="Movie Name" required>
+                    <input type="text" id="movieGenre" placeholder="Genre">
+                    <input type="text" id="movieTimings" placeholder="Timings (e.g., 2:00 PM, 5:00 PM, 9:00 PM)">
+                    <input type="number" id="movieSeats" placeholder="Total Seats" required>
+                    <input type="number" id="movieRows" placeholder="Rows" value="10">
+                    <input type="number" id="movieSeatsPerRow" placeholder="Seats per Row" value="20">
+                    <input type="number" id="moviePrice" placeholder="Price per Seat (optional)">
+                    <button type="submit">Add Movie</button>
+                </form>
+            </div>
+
+            <div class="movies-grid" id="moviesGrid"></div>
+        </section>
+    </div>
+
+    <div id="bookModal" class="modal">
+        <div class="modal-content booking-modal">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h3>Book Tickets</h3>
+            <p id="modalMovieName"></p>
+            <p id="modalPrice" class="modal-price"></p>
+            
+            <div class="booking-steps">
+                <div class="step" id="step1">
+                    <label>Select Date:</label>
+                    <input type="date" id="bookingDate" required onchange="onDateChange()">
+                    
+                    <label>Select Show:</label>
+                    <div class="timing-selection" id="timingSelection"></div>
+                    
+                    <label>Mobile Number:</label>
+                    <input type="tel" id="customerPhone" placeholder="10-digit mobile" required>
+                    
+                    <label>Coupon Code (optional):</label>
+                    <input type="text" id="couponCode" placeholder="e.g. SAVE20">
+                    
+                    <button type="button" class="btn-primary" onclick="goToSeatSelection()">Select Seats</button>
+                </div>
+                
+                <div class="step hidden" id="step2">
+                    <button type="button" class="btn-back" onclick="goBackToDetails()">← Back</button>
+                    <h4>Select your seats</h4>
+                    
+                    <div class="screen">Screen this way</div>
+                    
+                    <div class="seat-legend">
+                        <span class="legend-item"><span class="seat available"></span> Available</span>
+                        <span class="legend-item"><span class="seat selected"></span> Selected</span>
+                        <span class="legend-item"><span class="seat occupied"></span> Occupied</span>
+                    </div>
+                    
+                    <div class="seat-layout" id="seatLayout"></div>
+                    
+                    <div class="seat-summary" id="seatSummary">
+                        <span>Selected: <strong id="selectedSeatsCount">0</strong></span>
+                        <span>Total: <strong id="totalPrice">Rs. 0</strong></span>
+                    </div>
+                    
+                    <button type="button" class="btn-primary" onclick="confirmBooking()">Confirm Booking</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
