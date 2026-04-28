@@ -10,8 +10,8 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'movie-ticket-secret-key-2024')
 CORS(app)
 
-MONGO_URI = os.environ.get('MONGO_URI', 'mongodb://mongo:27017/moviedb')
-client = MongoClient(MONGO_URI)
+MONGO_URI = os.environ.get('MONGO_URI', 'mongodb://host.docker.internal:27017/moviedb')
+client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
 db = client.get_database()
 movies_collection = db.movies
 bookings_collection = db.bookings
