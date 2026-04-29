@@ -37,10 +37,14 @@ function loadMovies(search = '') {
         .then(movies => {
             const grid = document.getElementById('moviesGrid');
             grid.innerHTML = '';
-            movies.forEach(movie => {
-                const card = createMovieCard(movie, dateParam);
-                grid.appendChild(card);
-            });
+            if (movies.length === 0) {
+                grid.innerHTML = '<div class="no-movies"><p>No movies found</p></div>';
+            } else {
+                movies.forEach(movie => {
+                    const card = createMovieCard(movie, dateParam);
+                    grid.appendChild(card);
+                });
+            }
         })
         .catch(err => console.error('Error loading movies:', err));
 }

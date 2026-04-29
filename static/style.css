@@ -136,6 +136,18 @@ body {
     margin-bottom: 3rem;
 }
 
+.no-movies {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    color: #888;
+}
+
+.no-movies p {
+    font-size: 1.2rem;
+    color: #F5A623;
+}
+
 @media (max-width: 900px) {
     .movies-grid {
         grid-template-columns: repeat(2, 1fr);
