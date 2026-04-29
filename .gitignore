@@ -3,3 +3,4 @@ README.md
 __pycache__/ 
 graphify-out
 .dockerignore
+test_cases.md
