@@ -99,7 +99,7 @@ def get_movies():
                     'timing': timing
                 })
                 for b in existing:
-                    booked += b.get('seats_booked', 0)
+                    booked += len(b.get('seats', []))
                 doc[f'available_{timing.replace(" ", "_").replace(":", "")}'] = total_seats - booked
         result.append(doc)
     return jsonify(result)
